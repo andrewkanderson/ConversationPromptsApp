@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Conversation Prompts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .prompt-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .prompt-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .button-container {
+            margin: 30px 0;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .category-filter {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .category-filter:hover,
+        .category-filter.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats {
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .welcome-message {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .prompt-text {
+                font-size: 1.1rem;
+            }
+            
+            .controls {
+                gap: 8px;
+            }
+            
+            .category-filter {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container">
+        <h1>Deep Conversation Prompts</h1>
+        <p class="subtitle">Meaningful questions to spark authentic connections</p>
+        
+        <div class="welcome-message" id="welcomeMessage">
+            <p>Welcome! Click the button below to discover thought-provoking questions designed to deepen your conversations and connections. These prompts are inspired by The School of Life's philosophy of meaningful dialogue.</p>
+        </div>
+        
+        <div class="controls">
+            <button class="category-filter active" data-category="all">All Categories</button>
+            <button class="category-filter" data-category="self">Self & Identity</button>
+            <button class="category-filter" data-category="relationships">Relationships</button>
+            <button class="category-filter" data-category="work">Work & Purpose</button>
+            <button class="category-filter" data-category="philosophy">Life Philosophy</button>
+            <button class="category-filter" data-category="challenges">Challenges</button>
+            <button class="category-filter" data-category="dreams">Dreams</button>
+            <button class="category-filter" data-category="memory">Memory</button>
+            <button class="category-filter" data-category="sacred">Sacred</button>
+        </div>
+        
+        <div class="button-container">
+            <button class="generate-btn" onclick="generatePrompt()">Generate New Prompt</button>
+        </div>
+        
+        <div class="prompt-card" id="promptCard" style="display: none;">
+            <div>
+                <div class="category-tag" id="categoryTag"></div>
+                <div class="prompt-text" id="promptText"></div>
+            </div>
+        </div>
+        
+        <div class="stats" id="stats">
+            Click the button to get your first conversation prompt!
+        </div>
+    </div>
+
+    <script>
+        const prompts = {
+            self: [
+                "What assumption about yourself turned out to be completely wrong?",
+                "If you could send a message to your teenage self, what would it say?",
+                "What's a skill or talent you wish you had but have never pursued? What stops you?",
+                "Describe a moment when you felt most authentically yourself.",
+                "What's one way you've changed in the past five years that surprises you?",
+                "If you had to choose between being remembered as brilliant or kind, which would you pick and why?",
+                "What's something you believe about life that most people would disagree with?",
+                "When do you feel most energized and alive?",
+                "What's a fear you had as a child that still influences you today?",
+                "If you could master any subject instantly, what would it be and how would it change your life?",
+                "What's the most important lesson failure has taught you?",
+                "How do you know when you're being true to yourself versus trying to please others?"
+            ],
+            relationships: [
+                "What's the most important thing you've learned about love?",
+                "Describe a friendship that changed your life.",
+                "What do you find hardest to forgive in others? In yourself?",
+                "When do you feel most misunderstood by the people closest to you?",
+                "What's something you wish you could say to someone but haven't?",
+                "How do you know when you truly trust someone?",
+                "What relationship in your life requires the most energy? Why do you maintain it?",
+                "What's the best advice about relationships that you've never followed?",
+                "Describe a time when someone's kindness caught you completely off guard.",
+                "What do you think people misunderstand about you most often?",
+                "If you could improve one thing about how you communicate, what would it be?",
+                "What's something you need from others but have trouble asking for?"
+            ],
+            work: [
+                "If money weren't a factor, how would you spend your time?",
+                "What work or activity makes you lose track of time?",
+                "What's something you do well that you don't get enough credit for?",
+                "If you could solve one problem in the world, what would it be?",
+                "What's the biggest gap between your current life and your ideal life?",
+                "Describe a time when you felt truly useful to others.",
+                "What would you regret not trying if you looked back on your life?",
+                "What's more important to you: being respected or being liked?",
+                "If you could master any profession for just one day, what would you choose?",
+                "What's the most meaningful compliment you've ever received about your work?",
+                "How do you define success for yourself (not society's definition)?",
+                "What's something you've stopped caring about that used to matter to you?"
+            ],
+            philosophy: [
+                "What do you think happens after we die, and how does that belief affect how you live?",
+                "If you had to choose three values to guide all your decisions, what would they be?",
+                "What's something everyone should experience at least once in their life?",
+                "When do you feel most connected to something bigger than yourself?",
+                "What's a tradition or belief you grew up with that you've since questioned?",
+                "If you could have dinner with any historical figure, who would it be and what would you ask?",
+                "What's the most beautiful thing you've ever witnessed?",
+                "How do you find meaning during difficult times?",
+                "What's something you're certain about now that you used to doubt?",
+                "If you could give everyone in the world one piece of advice, what would it be?",
+                "What role does suffering play in a meaningful life?",
+                "What's something that gives your life meaning that might seem trivial to others?"
+            ],
+            challenges: [
+                "What's the most difficult conversation you've ever had?",
+                "Describe a time when you were completely wrong about something important.",
+                "What's your biggest regret, and what has it taught you?",
+                "When have you surprised yourself with your own resilience?",
+                "What's something difficult you're currently avoiding?",
+                "How do you handle being criticized or receiving negative feedback?",
+                "What's a weakness you have that you're actually grateful for?",
+                "Describe a time when failing at something led to something better.",
+                "What's the scariest thing you've ever done that was worth it?",
+                "How has your relationship with money changed over time?",
+                "What's something you used to judge others for that you now understand?",
+                "What's the hardest truth you've had to accept about yourself?"
+            ],
+            dreams: [
+                "If you could live in any time period, when would it be and why?",
+                "What's a childhood dream you've never quite let go of?",
+                "If you could wake up tomorrow with a new talent, what would you want it to be?",
+                "What's something you've always wanted to try but keep making excuses not to?",
+                "If you could ask your future self one question, what would it be?",
+                "What would your perfect day look like from start to finish?",
+                "If you could change one thing about human nature, what would it be?",
+                "What's something beautiful you wish more people would notice?",
+                "If you had unlimited resources, what kind of legacy would you want to leave?",
+                "What's a place you've never been but feel drawn to?",
+                "If you could have any animal as a loyal companion, what would you choose?",
+                "What's something you hope will be different about the world in 50 years?"
+            ],
+            memory: [
+                "What's your earliest clear memory?",
+                "Describe a moment from your childhood that shaped who you are today.",
+                "What's the best advice someone has given you that you initially ignored?",
+                "What's something you wish you could experience again for the first time?",
+                "What's a small moment that turned out to be more significant than you realized?",
+                "What's the bravest thing you've ever witnessed someone else do?",
+                "What's something you learned too late in life?",
+                "Describe a time when a stranger's action restored your faith in humanity.",
+                "What's the most important thing you want to remember about this time in your life?",
+                "What's something from your past you'd like to revisit with your current perspective?",
+                "What's the best mistake you've ever made?",
+                "What moment from your life would you want to show someone to help them understand you?"
+            ],
+            sacred: [
+                "What do you think is the meaning of life?",
+                "How do you want to be remembered?",
+                "What would you want people to say at your funeral?",
+                "If you knew you only had one year to live, what would you do differently?",
+                "What's something you think society gets fundamentally wrong?",
+                "What gives you hope when the world feels overwhelming?",
+                "What do you think is your purpose on earth?",
+                "What's something you believe strongly but can't prove?",
+                "How do you want to grow as a person in the coming year?",
+                "What's the most important thing you want to teach the next generation?",
+                "What question do you think everyone should ask themselves?",
+                "If you could leave just one piece of wisdom for the world, what would it be?"
+            ]
+        };
+
+        let selectedCategories = new Set(['all']);
+        let usedPrompts = new Set();
+        let totalGenerated = 0;
+
+        function getAllPrompts() {
+            if (selectedCategories.has('all')) {
+                return Object.values(prompts).flat();
+            }
+            
+            let combinedPrompts = [];
+            for (const category of selectedCategories) {
+                if (prompts[category]) {
+                    combinedPrompts = combinedPrompts.concat(prompts[category]);
+                }
+            }
+            return combinedPrompts;
+        }
+
+        function generatePrompt() {
+            const availablePrompts = getAllPrompts();
+            
+            if (usedPrompts.size >= availablePrompts.length) {
+                usedPrompts.clear();
+            }
+            
+            let selectedPrompt;
+            let attempts = 0;
+            
+            do {
+                selectedPrompt = availablePrompts[Math.floor(Math.random() * availablePrompts.length)];
+                attempts++;
+            } while (usedPrompts.has(selectedPrompt) && attempts < 50);
+            
+            usedPrompts.add(selectedPrompt);
+            totalGenerated++;
+            
+            // Find which category this prompt belongs to
+            let promptCategory = 'General';
+            for (const [category, categoryPrompts] of Object.entries(prompts)) {
+                if (categoryPrompts.includes(selectedPrompt)) {
+                    promptCategory = category.charAt(0).toUpperCase() + category.slice(1);
+                    break;
+                }
+            }
+            
+            // Display the prompt
+            document.getElementById('welcomeMessage').style.display = 'none';
+            document.getElementById('promptCard').style.display = 'block';
+            document.getElementById('categoryTag').textContent = promptCategory;
+            document.getElementById('promptText').textContent = selectedPrompt;
+            
+            // Update stats
+            const remaining = availablePrompts.length - usedPrompts.size;
+            const categoryText = selectedCategories.has('all') ? 'all categories' : 
+                                Array.from(selectedCategories).join(', ');
+            document.getElementById('stats').textContent = 
+                `Prompt #${totalGenerated} • ${remaining} remaining in ${categoryText}`;
+            
+            // Add a subtle animation
+            const card = document.getElementById('promptCard');
+            card.style.transform = 'scale(0.95)';
+            card.style.opacity = '0.7';
+            setTimeout(() => {
+                card.style.transform = 'scale(1)';
+                card.style.opacity = '1';
+            }, 100);
+        }
+
+        function toggleCategory(category) {
+            if (category === 'all') {
+                selectedCategories.clear();
+                selectedCategories.add('all');
+            } else {
+                selectedCategories.delete('all');
+                
+                if (selectedCategories.has(category)) {
+                    selectedCategories.delete(category);
+                } else {
+                    selectedCategories.add(category);
+                }
+                
+                // If no categories selected, default to all
+                if (selectedCategories.size === 0) {
+                    selectedCategories.add('all');
+                }
+            }
+            
+            usedPrompts.clear();
+            
+            // Update button states
+            document.querySelectorAll('.category-filter').forEach(btn => {
+                if (btn.dataset.category === 'all') {
+                    btn.classList.toggle('active', selectedCategories.has('all'));
+                } else {
+                    btn.classList.toggle('active', selectedCategories.has(btn.dataset.category));
+                }
+            });
+            
+            // Update stats
+            const availablePrompts = getAllPrompts();
+            const categoryText = selectedCategories.has('all') ? 'all categories' : 
+                                Array.from(selectedCategories).join(', ');
+            document.getElementById('stats').textContent = 
+                `Ready to generate from ${availablePrompts.length} prompts in ${categoryText}`;
+        }
+
+        // Add event listeners to category buttons
+        document.querySelectorAll('.category-filter').forEach(btn => {
+            btn.addEventListener('click', () => {
+                toggleCategory(btn.dataset.category);
+            });
+        });
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = particle.style.height = (Math.random() * 6 + 2) + 'px';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize
+        createParticles();
+        
+        // Keyboard shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                generatePrompt();
+            }
+        });
+    </script>
+</body>
+</html>
